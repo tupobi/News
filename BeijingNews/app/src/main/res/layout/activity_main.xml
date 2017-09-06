@@ -4,13 +4,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.administrator.beijingnews.activity.MainActivity">
+    tools:context="com.example.administrator.beijingnews.activity.MainActivity"
+    android:id="@+id/fl_main_content">
 
-    <TextView
-        android:textSize="32sp"
-        android:layout_gravity="center"
-        android:textColor="@android:color/holo_red_dark"
-        android:text="主页面"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+    <!--<TextView-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_gravity="center"-->
+        <!--android:text="主页面"-->
+        <!--android:textColor="@android:color/holo_red_dark"-->
+        <!--android:textSize="32sp" />-->
 </FrameLayout>
