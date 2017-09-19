@@ -1,0 +1,97 @@
+1、使用xUtils3联网请求数据
+    private void getDataFromNet() {
+        RequestParams requestParams = new RequestParams(Constants.NEWS_CENTER_PAGER_URL);
+        x.http().get(requestParams, new Callback.CommonCallback<String>() {
+            @Override
+            public void onSuccess(String result) {
+                LogUtil.e("联网请求数据成功，resul = " + result);
+                NewsCenterPagerBean bean = processJsonData(result);
+                data = bean.getData();
+                //添加详情页面
+                detailPagers = new ArrayList<MenuDetailBasePager>();
+                detailPagers.add(new NewsMenuDetailPager(mContext));
+                detailPagers.add(new TopicMenuDetailPager(mContext));
+                detailPagers.add(new PhotosMenuDetailPager(mContext));
+                detailPagers.add(new InteractMenuDetailPager(mContext));
+
+                //将菜单标题传递给左侧菜单
+                //1、得到MainActivity
+                MainActivity mainActivity = (MainActivity) mContext;
+                //2、得到左侧菜单
+                LeftMenuFragment leftMenuFragment = mainActivity.getLeftMenuFragment();
+                //3、在左侧菜单中设置得到的标题
+                leftMenuFragment.setmData(data);
+            }
+
+            @Override
+            public void onError(Throwable ex, boolean isOnCallback) {
+                LogUtil.e("联网请求失败！" + ex.getMessage());
+            }
+
+            @Override
+            public void onCancelled(CancelledException cex) {
+                LogUtil.e("联网请求取消" + cex.getMessage());
+            }
+
+            @Override
+            public void onFinished() {
+                LogUtil.e("联网请求完成");
+            }
+        });
+    }
+	
+2、使用Gson解析json数据
+private NewsCenterPagerBean processJsonData(String jsonData) {
+	return new Gson().fromJson(jsonData, NewsCenterPagerBean.class);
+}
+
+3、给左侧菜单传递数据
+01.解析json数据，见上
+
+02.在MainActivity中写得到LeftMenuFragment的方法
+    /**
+     * 通过设置的TAG得到左侧菜单Fragment
+     * @return 返回左侧菜单Fragment
+     */
+    public LeftMenuFragment getLeftMenuFragment() {
+        return (LeftMenuFragment) getSupportFragmentManager().findFragmentByTag(LEFTMENU_TAG);
+    }
+	
+03.在左侧菜单中设置得到的标题
+//1、得到MainActivity
+MainActivity mainActivity = (MainActivity) mContext;
+//2、得到左侧菜单
+LeftMenuFragment leftMenuFragment = mainActivity.getLeftMenuFragment();
+//3、在左侧菜单中设置得到的标题
+leftMenuFragment.setmData(data);
+//4、左侧菜单接收新闻中心传来的数据
+/**
+ * 接收到新闻中心页面传来的数据
+ *
+ * @param data 新闻中心的数据
+ */（在左侧菜单中）
+public void setmData(List<NewsCenterPagerBean.DataBean> data) {
+	this.mData = data;
+	leftMenuListViewAdapter = new LeftMenuListViewAdapter(mContext, data);
+	lvLeftMenu.setAdapter(leftMenuListViewAdapter);
+	switchDetailPager(0);
+}
+//5、切换详情页面（在左侧菜单中）
+private void switchDetailPager(int i) {
+	MainActivity mainActivity = (MainActivity) mContext;
+	ContentFragment contentFragment = mainActivity.getContentFragment();
+	NewsCenterPager newsCenterPager = contentFragment.getNewsCenterPager();
+	newsCenterPager.switchDetailPager(i);
+}
+//在newsCenterPager中切换相应菜单详情页面
+public void switchDetailPager(int position) {
+	//1.设置标题
+	tvTitle.setText(data.get(position).getTitle());
+	//2.移除页面内容
+	flContent.removeAllViews();
+	//3.添加详情页面的新内容并初始化详情页面数据
+	MenuDetailBasePager detailPager = detailPagers.get(position);
+	View rootView = detailPager.rootView;
+	detailPager.initData();//初始化数据
+	flContent.addView(rootView);
+}

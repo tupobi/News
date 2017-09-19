@@ -5,13 +5,13 @@
     android:orientation="vertical">
 
 
-    <android.support.v4.view.ViewPager
+    <com.example.administrator.beijingnews.view.NoScrollViewPager
         android:id="@+id/vp_main_content"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1">
 
-    </android.support.v4.view.ViewPager>
+    </com.example.administrator.beijingnews.view.NoScrollViewPager>
 
     <RadioGroup
         android:id="@+id/rg_main_bottom"

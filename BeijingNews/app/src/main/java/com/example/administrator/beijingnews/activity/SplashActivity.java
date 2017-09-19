@@ -12,6 +12,7 @@ import android.widget.Toast;
 
 import com.example.administrator.beijingnews.R;
 import com.example.administrator.beijingnews.utils.CacheUtils;
+import com.example.administrator.beijingnews.utils.SpUtils;
 
 
 public class SplashActivity extends Activity {
@@ -82,7 +83,8 @@ public class SplashActivity extends Activity {
          */
         @Override
         public void onAnimationEnd(Animation animation) {
-            boolean hasStartedMainAty = CacheUtils.getBoolean(SplashActivity.this, HAS_STARTED_MAIN_ATY);
+//            boolean hasStartedMainAty = CacheUtils.getBoolean(SplashActivity.this, HAS_STARTED_MAIN_ATY);
+            boolean hasStartedMainAty = SpUtils.getInstance().getBoolean(HAS_STARTED_MAIN_ATY, false);
             if (hasStartedMainAty){
                 MainActivity.actionStart(SplashActivity.this);
             }else {

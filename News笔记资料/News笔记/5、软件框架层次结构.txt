@@ -1,0 +1,101 @@
+1、软件框架和层次结构
+首先是MainActivity包含两个FrameLayout(Fragment)一个是LeftSlidingMenuFragment和ContentFragment
+LeftSlidingMenuFragment中目前只有一个TextView控件，ContentFragment中包含ViewPager各个子页面和RadioButton底部控制面板。
+2、屏蔽ViewPager的滑动效果
+//重写ViewPager消费掉滑动的触摸事件
+public class NoScrollViewPager extends ViewPager {
+
+    /**
+     * 通常在代码中实例化的时候使用该方法
+     * @param context
+     */
+    public NoScrollViewPager(Context context) {
+        super(context);
+    }
+
+    /**
+     * 在布局文件中使用该类的时候，实例化该类用该构造方法，这个方法不能少，否则会崩溃
+     * @param context
+     * @param attrs
+     */
+    public NoScrollViewPager(Context context, AttributeSet attrs) {
+        super(context, attrs);
+    }
+
+    /**
+     * 重写触摸事件，消费掉ViewPager的滑动事件
+     * @param ev
+     * @return
+     */
+    @Override
+    public boolean onTouchEvent(MotionEvent ev) {
+        return true;
+    }
+}
+3、防止ViewPager预加载下一个页面的数据，但下一个页面可以正常加载，只是不预加载数据
+//不在Adapter的instantiateItem()中初始化数据，否则预加载下一个页面的数据。重写OnPagerChangedListener选中页面 //手动加载数据
+    class MyOnPageChangeListener implements ViewPager.OnPageChangeListener {
+
+        @Override
+        public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+        }
+
+        /**
+         * 当某个页面被选中的时候回调该方法
+         *
+         * @param position：被选中页面的位置
+         */
+        @Override
+        public void onPageSelected(int position) {
+            //防止预加载，在页面被选中时才初始化数据initData()，但是下一个页面仍然被初始化，只是没有加载数据
+            pagers.get(position).initData();
+        }
+
+        @Override
+        public void onPageScrollStateChanged(int state) {
+
+        }
+    }
+4、屏蔽ViewPager的某个页面的左侧菜单不可滑动
+    class MyOnCheckedChangeListener implements RadioGroup.OnCheckedChangeListener {
+
+        @Override
+        public void onCheckedChanged(RadioGroup radioGroup, @IdRes int i) {
+            switch (i) {
+                case R.id.rb_home:
+                    vpMainContent.setCurrentItem(0, false);//加上false没有切换的动画效果
+                    isMenuEnableSliding(false);
+                    break;
+                case R.id.rb_news:
+                    vpMainContent.setCurrentItem(1, false);
+                    isMenuEnableSliding(true);
+                    break;
+                case R.id.rb_smartservice:
+                    vpMainContent.setCurrentItem(2, false);
+                    isMenuEnableSliding(false);
+                    break;
+                case R.id.rb_government:
+                    vpMainContent.setCurrentItem(3, false);
+                    isMenuEnableSliding(false);
+                    break;
+                case R.id.rb_setting:
+                    vpMainContent.setCurrentItem(4, false);
+                    isMenuEnableSliding(false);
+                    break;
+            }
+        }
+    }
+
+    /**
+     * 设置SlidingMenu可否滑动
+     * @param isEnableSliding  flag
+     */
+    private void isMenuEnableSliding(boolean isEnableSliding) {
+        MainActivity mainActivity = (MainActivity) mContext;
+        if (isEnableSliding) {
+            mainActivity.getSlidingMenu().setTouchModeAbove(SlidingMenu.TOUCHMODE_FULLSCREEN);
+        } else {
+            mainActivity.getSlidingMenu().setTouchModeAbove(SlidingMenu.TOUCHMODE_NONE);
+        }
+    }

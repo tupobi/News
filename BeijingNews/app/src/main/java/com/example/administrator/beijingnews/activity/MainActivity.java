@@ -8,6 +8,9 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.Window;
+import android.view.WindowManager;
+import android.widget.BaseAdapter;
 
 import com.example.administrator.beijingnews.R;
 import com.example.administrator.beijingnews.fragment.ContentFragment;
@@ -29,8 +32,16 @@ public class MainActivity extends SlidingFragmentActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
         //1.设置主页面
         setContentView(R.layout.activity_main);
+        //初始化左侧菜单
+        initLeftSlidingMenu();
+        //初始化内容页面
+        initFragment();
+    }
+
+    private void initLeftSlidingMenu() {
         //2.设置左侧菜单
         setBehindContentView(R.layout.activity_leftmenu);
         //3.设置菜单，包含左侧和右侧菜单
@@ -43,9 +54,6 @@ public class MainActivity extends SlidingFragmentActivity {
         slidingMenu.setTouchModeAbove(SlidingMenu.TOUCHMODE_FULLSCREEN);
         //6.设置主页占据的宽度
         slidingMenu.setBehindOffset(DensityUtil.dip2px(MainActivity.this, 200));
-
-        initFragment();
-
     }
 
     private void initFragment() {
@@ -61,5 +69,21 @@ public class MainActivity extends SlidingFragmentActivity {
         //简写如下：可读性不强
 //        fragmentManager.beginTransaction().replace(R.id.fl_main_content, new ContentFragment(), MAIN_CONTENT_TAG).replace(R.id.fl_leftmenu, new LeftMenuFragment(), LEFTMENU_TAG).commit();
 
+    }
+
+    /**
+     * 通过设置的TAG得到左侧菜单Fragment
+     * @return 返回左侧菜单Fragment
+     */
+    public LeftMenuFragment getLeftMenuFragment() {
+        return (LeftMenuFragment) getSupportFragmentManager().findFragmentByTag(LEFTMENU_TAG);
+    }
+
+    /**
+     * 通过TAG得到内容Fragment
+     * @return 返回内容Fragment
+     */
+    public ContentFragment getContentFragment() {
+        return (ContentFragment) getSupportFragmentManager().findFragmentByTag(MAIN_CONTENT_TAG);
     }
 }

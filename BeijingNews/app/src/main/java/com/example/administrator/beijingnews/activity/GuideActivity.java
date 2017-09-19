@@ -20,6 +20,7 @@ import android.widget.RelativeLayout;
 import com.example.administrator.beijingnews.R;
 import com.example.administrator.beijingnews.utils.CacheUtils;
 import com.example.administrator.beijingnews.utils.DensityUtil;
+import com.example.administrator.beijingnews.utils.SpUtils;
 
 import java.util.ArrayList;
 
@@ -92,7 +93,8 @@ public class GuideActivity extends Activity {
             @Override
             public void onClick(View view) {
                 //1、保存参数，进入过主页面
-                CacheUtils.putBoolean(GuideActivity.this, SplashActivity.HAS_STARTED_MAIN_ATY, true);
+//                CacheUtils.putBoolean(GuideActivity.this, SplashActivity.HAS_STARTED_MAIN_ATY, true);
+                SpUtils.getInstance().save(SplashActivity.HAS_STARTED_MAIN_ATY, true);
                 //2、跳转到主页面
                 MainActivity.actionStart(GuideActivity.this);
                 //3、关闭引导页面

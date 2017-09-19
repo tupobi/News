@@ -21,6 +21,7 @@ public abstract class BaseFragment extends Fragment {
 
     /**
      * 抽象方法，让孩子实现自己的视图，达到自己特有的效果
+     *
      * @return 返回自己得视图
      */
     public abstract View initView();

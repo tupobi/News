@@ -1,0 +1,63 @@
+0、引入ViewPagerIndicator
+1、添加ImageButton点击滑到下一个页面
+ibNextTabPager.setOnClickListener(new View.OnClickListener() {
+	@Override
+	public void onClick(View view) {
+		vpNewsmenuDetail.setCurrentItem(vpNewsmenuDetail.getCurrentItem()+1);
+		//点击后ViewPager滑动到下一个页面
+	}
+});
+2、防止ViewPagerIndicator滑动事件被父类左侧菜单拦截
+//在被拦截事件的子层视图中重写该方法，请求禁用父层视图的拦截事件
+@Override
+public boolean dispatchTouchEvent(MotionEvent ev) {
+	//禁用父层视图拦截事件
+	//true:禁用
+	//false:不禁用
+	getParent().requestDisallowInterceptTouchEvent(true);
+	return super.dispatchTouchEvent(ev);
+}
+3、页签页面的滑动事件被父类左侧菜单拦截，只有第一个页签才能拉出左侧菜单
+    class TabDetailPagerOnPageChangeListener implements ViewPager.OnPageChangeListener {
+
+        @Override
+        public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+        }
+
+        @Override
+        public void onPageSelected(int position) {
+            if (position == 0) {
+                isMenuEnableSliding(true);
+            } else {
+                isMenuEnableSliding(false);
+            }
+        }
+
+        @Override
+        public void onPageScrollStateChanged(int state) {
+
+        }
+    }
+
+    private void isMenuEnableSliding(boolean isEnableSliding) {
+        MainActivity mainActivity = (MainActivity) mContext;
+        if (isEnableSliding) {
+            mainActivity.getSlidingMenu().setTouchModeAbove(SlidingMenu.TOUCHMODE_FULLSCREEN);
+        } else {
+            mainActivity.getSlidingMenu().setTouchModeAbove(SlidingMenu.TOUCHMODE_NONE);
+        }
+    }
+4、ListView添加头部，化为一个整体
+//将head布局重新创建为一个视图，添加到ListView的addHeaderView()中
+    @Override
+    public View initView() {
+        View view = View.inflate(mContext, R.layout.tab_detail_pager, null);
+        x.view().inject(TabDetailPager.this, view);
+
+        View headView = View.inflate(mContext, R.layout.head_news, null);
+        x.view().inject(TabDetailPager.this, headView);
+
+        lvNewsDetail.addHeaderView(headView);
+        return view;
+    }
