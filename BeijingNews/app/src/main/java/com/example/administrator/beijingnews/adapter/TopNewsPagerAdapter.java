@@ -1,7 +1,9 @@
 package com.example.administrator.beijingnews.adapter;
 
 import android.content.Context;
+import android.os.Handler;
 import android.support.v4.view.PagerAdapter;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -21,10 +23,12 @@ import java.util.List;
 public class TopNewsPagerAdapter extends PagerAdapter {
     private List<TabDetailPagerBean.DataBean.TopnewsBean> tobNewsData;
     private Context mContext;
+    private Handler topNewsHandler;
 
-    public TopNewsPagerAdapter(List<TabDetailPagerBean.DataBean.TopnewsBean> tobNewsData, Context context){
+    public TopNewsPagerAdapter(List<TabDetailPagerBean.DataBean.TopnewsBean> tobNewsData, Context context, Handler topNewsHandler){
         this.tobNewsData = tobNewsData;
         this.mContext = context;
+        this.topNewsHandler = topNewsHandler;
     }
 
     @Override
@@ -48,6 +52,39 @@ public class TopNewsPagerAdapter extends PagerAdapter {
         TabDetailPagerBean.DataBean.TopnewsBean topNewsData = tobNewsData.get(position);
         String topNewsImageUrl = Constants.BASE_URL + topNewsData.getTopimage();
         x.image().bind(ivTopNews, topNewsImageUrl);
+
+        ivTopNews.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                switch (motionEvent.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        if (topNewsHandler != null) {
+                            topNewsHandler.removeCallbacksAndMessages(null);
+                        }
+                        break;
+
+                    case MotionEvent.ACTION_UP:
+                        topNewsHandler.removeCallbacksAndMessages(null);
+                        topNewsHandler.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                topNewsHandler.sendEmptyMessage(0);
+                            }
+                        }, 3500);
+                        break;
+//                    case MotionEvent.ACTION_CANCEL:
+//                        topNewsHandler.removeCallbacksAndMessages(null);
+//                        topNewsHandler.postDelayed(new Runnable() {
+//                            @Override
+//                            public void run() {
+//                                topNewsHandler.sendEmptyMessage(0);
+//                            }
+//                        }, 3500);
+//                        break;
+                }
+                return true;
+            }
+        });
         return ivTopNews;
     }
 

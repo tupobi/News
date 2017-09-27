@@ -2,16 +2,18 @@ package com.example.administrator.beijingnews.menudetailpager.tabdetailpager;
 
 import android.content.Context;
 import android.os.Handler;
+import android.os.Message;
 import android.support.v4.view.ViewPager;
 import android.text.TextUtils;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.administrator.beijingnews.R;
+import com.example.administrator.beijingnews.activity.NewsDetailActivity;
 import com.example.administrator.beijingnews.adapter.NewsListAdapter;
 import com.example.administrator.beijingnews.adapter.TopNewsPagerAdapter;
 import com.example.administrator.beijingnews.base.MenuDetailBasePager;
@@ -22,7 +24,7 @@ import com.example.administrator.beijingnews.utils.DensityUtil;
 import com.example.administrator.beijingnews.utils.LogUtil;
 import com.example.administrator.beijingnews.utils.SpUtils;
 import com.example.administrator.beijingnews.view.HorizontalScrollViewPager;
-import com.example.administrator.beijingnews.view.RefreshListView;
+import com.example.refreshlistview.RefreshListView;
 import com.google.gson.Gson;
 
 import org.xutils.common.Callback;
@@ -31,8 +33,6 @@ import org.xutils.view.annotation.ViewInject;
 import org.xutils.x;
 
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
 /**
  * Created by Administrator on 2017/9/13.
@@ -43,7 +43,7 @@ import java.util.TimerTask;
  */
 public class TabDetailPager extends MenuDetailBasePager {
 
-    private final NewsCenterPagerBean.DataBean.ChildrenBean tabDetailData;
+    private NewsCenterPagerBean.DataBean.ChildrenBean tabDetailData;
     private String url;
 
     @ViewInject(R.id.vp_news_title_image)
@@ -76,6 +76,8 @@ public class TabDetailPager extends MenuDetailBasePager {
      */
     private String urlMore;
     private boolean isLoadMore;
+    public static final String READ_ARRAY_ID = "read_array_id";
+    private TopNewsHandler topNewsHandler;
 
     public TabDetailPager(Context mContext, NewsCenterPagerBean.DataBean.ChildrenBean childrenBean) {
         super(mContext);
@@ -92,7 +94,30 @@ public class TabDetailPager extends MenuDetailBasePager {
 
 //        lvNewsDetail.addHeaderView(headView);
         lvNewsDetail.addTopNewsView(headView);
+        //设置下拉刷新
         lvNewsDetail.setOnRefreshListener(new MyOnRefreshListener());
+
+        //设置ListView的item点击
+        lvNewsDetail.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                //设置ListView item点击之后变灰，PS:第0条是head，顶部轮播图
+                int realPosition = i - 1;
+                TabDetailPagerBean.DataBean.NewsBean newsItemData = newsData.get(realPosition);
+//                Toast.makeText(mContext, "newsItemData: id==" + newsItemData.getId() + "title==" + newsItemData.getTitle(), Toast.LENGTH_SHORT).show();
+//                Toast.makeText(mContext, "newsItemData: url==" + newsItemData.getUrl(), Toast.LENGTH_SHORT).show();
+                //取出保存的Item ID的集合
+                String idArray = SpUtils.getInstance().getString(READ_ARRAY_ID, "");
+                //判断当前点击的item的ID是否存在于该集合中，如果存在则变灰，不存在添加到集合中去
+                if (!idArray.contains(newsItemData.getId() + "")) {
+                    SpUtils.getInstance().save(READ_ARRAY_ID, idArray + newsItemData.getId() + ",");
+                    //刷新适配器
+                    newsListAdapter.notifyDataSetChanged();
+                }
+                NewsDetailActivity.actionStart(mContext, Constants.BASE_URL + newsItemData.getUrl());
+            }
+        });
+
         return view;
     }
 
@@ -187,7 +212,7 @@ public class TabDetailPager extends MenuDetailBasePager {
         //区分默认和加载更多
         if (!isLoadMore) {
             topImageNewsData = bean.getData().getTopnews();
-            vpNewsTitleImage.setAdapter(new TopNewsPagerAdapter(topImageNewsData, mContext));
+            vpNewsTitleImage.setAdapter(new TopNewsPagerAdapter(topImageNewsData, mContext, topNewsHandler));
 
             addPoint();
 
@@ -209,10 +234,33 @@ public class TabDetailPager extends MenuDetailBasePager {
             //刷新适配器
             newsListAdapter.notifyDataSetChanged();
             isLoadMore = false;
-
         }
 
+        //发消息，每隔四秒切换一个ViewPager
+        if (topNewsHandler == null) {
+            topNewsHandler = new TopNewsHandler();
+        }
+        topNewsHandler.removeCallbacksAndMessages(null);
+        topNewsHandler.postDelayed(new SwitchTopNews(), 3500);
     }
+
+    class TopNewsHandler extends Handler {
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            int item = (vpNewsTitleImage.getCurrentItem() + 1) % topImageNewsData.size();
+            vpNewsTitleImage.setCurrentItem(item);
+            topNewsHandler.postDelayed(new SwitchTopNews(), 3500);
+        }
+    }
+
+    class SwitchTopNews implements Runnable {
+        @Override
+        public void run() {
+            topNewsHandler.sendEmptyMessage(0);
+        }
+    }
+
 
     private void addPoint() {
         llVpPointGroup.removeAllViews();//缓存数据执行两次，移除所有的红点
@@ -233,7 +281,6 @@ public class TabDetailPager extends MenuDetailBasePager {
             llVpPointGroup.addView(ivPoint);
         }
     }
-
 
     class vpNewsTitleImageOnPageChangeListener implements ViewPager.OnPageChangeListener {
 
@@ -256,9 +303,20 @@ public class TabDetailPager extends MenuDetailBasePager {
             tvNewsTitleSummarry.setText(topImageNewsData.get(position).getTitle());
         }
 
+        private boolean isDragging = false;
+
         @Override
         public void onPageScrollStateChanged(int state) {
-
+            if (state == ViewPager.SCROLL_STATE_DRAGGING) {
+                isDragging = true;
+                topNewsHandler.removeCallbacksAndMessages(null);
+            } else if (state == ViewPager.SCROLL_STATE_SETTLING && isDragging) {
+                isDragging = false;
+                topNewsHandler.removeCallbacksAndMessages(null);
+                topNewsHandler.postDelayed(new SwitchTopNews(), 3500);
+            } else if (state == ViewPager.SCROLL_STATE_IDLE) {
+                isDragging = false;
+            }
         }
     }
 

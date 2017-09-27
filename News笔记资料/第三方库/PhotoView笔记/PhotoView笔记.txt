@@ -1,0 +1,11 @@
+1、将图片的URI传入专门显示图片的ShowPhotoActivity中
+
+2、继承PhotoView的布局
+
+3、ImagerLoader可以实现图片加载回调，但是喝PhotoView连用不可以圆角化处理图片
+ 		      
+4、
+   该空间match_parent的意思是放大可以铺满屏幕，如果是wrap_content的话，放大只在控件的大小范围内放大。
+   该控件有个缺点，或者不知道怎么设置，没有放大到屏幕边界不可以强行拖拽图片，这样用户体验贼差
+   
+   此外，与ImageLoader一起用时，被放大图片不支持圆角化处理

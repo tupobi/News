@@ -1,4 +1,4 @@
-package com.example.administrator.beijingnews.view;
+package com.example.refreshlistview;
 
 import android.content.Context;
 import android.os.Handler;
@@ -14,11 +14,6 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.example.administrator.beijingnews.R;
-
-import org.xutils.view.annotation.ViewInject;
-import org.xutils.x;
-
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -29,22 +24,16 @@ import java.util.Date;
 public class RefreshListView extends ListView {
     private LinearLayout llHeaderView;
 
-    @ViewInject(R.id.ll_pull_down_refresh)
     private LinearLayout ll_pull_down_refresh;
 
-    @ViewInject(R.id.iv_pull_down_refresh_arraw)
     private ImageView iv_pull_down_refresh_arraw;
 
-    @ViewInject(R.id.pb_refresh)
     private ProgressBar pb_refresh;
 
-    @ViewInject(R.id.tv_refresh_status)
     private TextView tv_refresh_status;
 
-    @ViewInject(R.id.tv_refresh_date)
     private TextView tv_refresh_date;
 
-    @ViewInject(R.id.ll_footer)
     private LinearLayout llPullUpRefreshFooter;
 
     /**
@@ -105,8 +94,7 @@ public class RefreshListView extends ListView {
 
     private void initFooterView(Context context) {
         footerView = (LinearLayout) View.inflate(context, R.layout.pull_up_refresh_footer, null);
-        x.view().inject(RefreshListView.this, footerView);
-
+        llPullUpRefreshFooter = (LinearLayout) footerView.findViewById(R.id.ll_footer);
         llPullUpRefreshFooter.measure(0, 0);
         llPullUpRefreshFooterHeight = llPullUpRefreshFooter.getMeasuredHeight();
         footerView.setPadding(0, -llPullUpRefreshFooterHeight, 0, 0);
@@ -175,7 +163,11 @@ public class RefreshListView extends ListView {
 
     private void initHeaderView(Context context) {
         llHeaderView = (LinearLayout) View.inflate(context, R.layout.pull_down_refresh_header, null);
-        x.view().inject(RefreshListView.this, llHeaderView);
+        ll_pull_down_refresh = (LinearLayout) llHeaderView.findViewById(R.id.ll_pull_down_refresh);
+        iv_pull_down_refresh_arraw = (ImageView) llHeaderView.findViewById(R.id.iv_pull_down_refresh_arraw);
+        pb_refresh = (ProgressBar) llHeaderView.findViewById(R.id.pb_refresh);
+        tv_refresh_status = (TextView) llHeaderView.findViewById(R.id.tv_refresh_status);
+        tv_refresh_date = (TextView) llHeaderView.findViewById(R.id.tv_refresh_date);
 
         //1、测量
         ll_pull_down_refresh.measure(0, 0);

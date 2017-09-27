@@ -1,0 +1,44 @@
+ 1、基本使用volley的方法：
+	 /**
+     * 基本使用volley请求数据
+     */
+    private void getDataFromNetByVolley() {
+        //请求队列
+        RequestQueue requestQueue = Volley.newRequestQueue(mContext);
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, Constants.NEWS_CENTER_PAGER_URL, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String s) {
+                LogUtil.e("使用volley联网请求数据成功，result = " + s);
+                processData(s);
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError volleyError) {
+                LogUtil.e("使用volley联网请求数据是啊比，result = " + volleyError.getMessage());
+            }
+        }){
+            //处理volley请求数据乱码问题
+            @Override
+            protected Response<String> parseNetworkResponse(NetworkResponse response) {
+                try {
+                    //修改编码方式
+                    String parsed = new String(response.data, "UTF-8");
+                    return Response.success(parsed, HttpHeaderParser.parseCacheHeaders(response));
+                } catch (UnsupportedEncodingException var4) {
+                    var4.printStackTrace();
+                }
+                return super.parseNetworkResponse(response);
+            }
+        };
+        //添加进队列
+        requestQueue.add(stringRequest);
+    }
+
+2、volley的封装成单例及优化，首先添加volley的包，在文件夹中。
+1.在Application中初始化volleyManager:
+VolleyManager.init(this);
+2.不需要手动new消息队列，直接：
+ //添加进队列
+VolleyManager.getRequestQueue().add(stringRequest);
+
+	

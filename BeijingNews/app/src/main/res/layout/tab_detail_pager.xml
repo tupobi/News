@@ -4,12 +4,12 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <com.example.administrator.beijingnews.view.RefreshListView
+    <com.example.refreshlistview.RefreshListView
         android:id="@+id/lv_news_detail"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:divider="@null">
 
-    </com.example.administrator.beijingnews.view.RefreshListView>
+    </com.example.refreshlistview.RefreshListView>
 
 </LinearLayout>

@@ -1,0 +1,124 @@
+1、点击ListView item变灰
+	//设置ListView的item点击
+	lvNewsDetail.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+		@Override
+		public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+			//设置ListView item点击之后变灰，PS:第0条是head，顶部轮播图
+			int realPosition = i - 1;
+			TabDetailPagerBean.DataBean.NewsBean newsItemData = newsData.get(realPosition);
+			Toast.makeText(mContext, "newsItemData: id==" + newsItemData.getId() + "title==" + newsItemData.getTitle(), Toast.LENGTH_SHORT).show();
+			//取出保存的Item ID的集合
+			String idArray = SpUtils.getInstance().getString(READ_ARRAY_ID, "");
+			//判断当前点击的item的ID是否存在于该集合中，如果存在则变灰，不存在添加到集合中去
+			if (!idArray.contains(newsItemData.getId() + "")) {
+				SpUtils.getInstance().save(READ_ARRAY_ID, idArray + newsItemData.getId() + ",");
+				newsListAdapter.notifyDataSetChanged();
+			}
+
+		}
+	});
+		
+    @Override
+    public View getView(int i, View convertView, ViewGroup viewGroup) {
+        View view;
+        ViewHolder viewHolder;
+        if (convertView == null) {
+            view = LayoutInflater.from(mContext).inflate(R.layout.lv_news_detail_item, viewGroup, false);
+            viewHolder = new ViewHolder();
+            viewHolder.tv_news_detail_summary = (TextView) view.findViewById(R.id.tv_news_detail_summary);
+            viewHolder.tv_news_date = (TextView) view.findViewById(R.id.tv_news_date);
+            viewHolder.iv_news_icon = (ImageView) view.findViewById(R.id.iv_news_icon);
+            view.setTag(viewHolder);
+        } else {
+            view = convertView;
+            viewHolder = (ViewHolder) view.getTag();
+        }
+        //初始化控件数据
+        TabDetailPagerBean.DataBean.NewsBean itemNewsData = newsData.get(i);
+        String imageUrl = Constants.BASE_URL + itemNewsData.getListimage();
+        x.image().bind(viewHolder.iv_news_icon, imageUrl, imageOptions);
+//        //请求图片改为glide
+//        Glide.with(mContext).load(imageUrl).into(viewHolder.iv_news_icon);
+
+        viewHolder.tv_news_detail_summary.setText(itemNewsData.getTitle());
+        viewHolder.tv_news_date.setText(itemNewsData.getPubdate());
+        String idArray = SpUtils.getInstance().getString(TabDetailPager.READ_ARRAY_ID, "");
+        if (idArray.contains(itemNewsData.getId() + "")) {
+            viewHolder.tv_news_detail_summary.setTextColor(Color.GRAY);
+        } else {
+            viewHolder.tv_news_detail_summary.setTextColor(Color.BLACK);
+        }
+        return view;
+    }
+2、WebView设置参数（javaScript）
+		WebSettings wbSettings = wbNewsDetail.getSettings();
+        //设置支持javaScript
+        wbSettings.setJavaScriptEnabled(true);
+        //设置双击变大变小
+        wbSettings.setUseWideViewPort(true);
+        //设置缩放按钮
+        wbSettings.setBuiltInZoomControls(true);
+        //不让从当前网页跳转到系统浏览器中
+        wbNewsDetail.setWebViewClient(new WebViewClient(){
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                super.onPageFinished(view, url);
+                pbLoading.setVisibility(View.GONE);
+
+            }
+        });
+        wbNewsDetail.loadUrl(url);
+	字体的修改：
+    private void showChangeTextSizeDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("设置字体大小");
+        String items[] = {"超大字体", "大字体", "正常字体", "小字体", "超小字体"};
+
+        builder.setSingleChoiceItems(items, SpUtils.getInstance().getInt(WEBVIEW_TEXT_SIZE, 2), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                //这个i是选项的下标
+                tempTextSize = i;
+            }
+        });
+
+        builder.setNegativeButton("取消", null);
+        builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                realTextSize = tempTextSize;
+
+                //这个i和选项无关
+                LogUtil.e("realTextSize == " + realTextSize + " i ==" + i);
+
+                SpUtils.getInstance().save(WEBVIEW_TEXT_SIZE, realTextSize);
+                changetextSize();
+            }
+        });
+        builder.show();
+    }
+
+    private void changetextSize() {
+        switch (SpUtils.getInstance().getInt(WEBVIEW_TEXT_SIZE, 2)) {
+            case 0:
+                Toast.makeText(this, "超大字体", Toast.LENGTH_SHORT).show();
+                wbSettings.setTextZoom(200);
+                break;
+            case 1:
+                Toast.makeText(this, "大字体", Toast.LENGTH_SHORT).show();
+                wbSettings.setTextZoom(150);
+                break;
+            case 2:
+                Toast.makeText(this, "正常字体", Toast.LENGTH_SHORT).show();
+                wbSettings.setTextZoom(100);
+                break;
+            case 3:
+                Toast.makeText(this, "小字体", Toast.LENGTH_SHORT).show();
+                wbSettings.setTextZoom(75);
+                break;
+            case 4:
+                Toast.makeText(this, "超小字体", Toast.LENGTH_SHORT).show();
+                wbSettings.setTextZoom(50);
+                break;
+        }
+    }

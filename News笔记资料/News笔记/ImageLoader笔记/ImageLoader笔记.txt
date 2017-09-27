@@ -1,0 +1,62 @@
+1、在Application中初始化
+	initImageLoader(getApplicationContext());
+
+    public static void initImageLoader(Context context) {
+        // This configuration tuning is custom. You can tune every option, you may tune some of them,
+        // or you can create default configuration by
+        //  ImageLoaderConfiguration.createDefault(this);
+        // method.
+        ImageLoaderConfiguration.Builder config = new ImageLoaderConfiguration.Builder(context);
+        config.threadPriority(Thread.NORM_PRIORITY - 2);
+        config.denyCacheImageMultipleSizesInMemory();
+        config.diskCacheFileNameGenerator(new Md5FileNameGenerator());
+        config.diskCacheSize(50 * 1024 * 1024); // 50 MiB
+        config.tasksProcessingOrder(QueueProcessingType.LIFO);
+        config.writeDebugLogs(); // Remove for release app
+
+        // Initialize ImageLoader with configuration.
+        ImageLoader.getInstance().init(config.build());
+    }
+
+2、实现图片加载进度的回调：
+        options = new DisplayImageOptions.Builder()
+                .showImageOnLoading(R.drawable.home_scroll_default)
+                .showImageForEmptyUri(R.drawable.home_scroll_default)
+                .showImageOnFail(R.drawable.home_scroll_default)
+                .cacheInMemory(true) //启用内存缓存
+                .cacheOnDisk(true)  //启用外存缓存
+                .considerExifParams(true)
+//                .bitmapConfig(Bitmap.Config.RGB_565)  //16位
+                .bitmapConfig(Bitmap.Config.ARGB_8888)//32位
+                .displayer(new RoundedBitmapDisplayer(20))
+                .build();
+				
+				
+        ImageLoader.getInstance()
+                .displayImage(imageUrl, viewHolder.iv_photo, options, new SimpleImageLoadingListener() {
+                    @Override
+                    public void onLoadingStarted(String imageUri, View view) {
+                        viewHolder.pb_loading_image.setVisibility(View.VISIBLE);
+                        viewHolder.iv_photo.setVisibility(View.GONE);
+                    }
+
+                    @Override
+                    public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
+                        viewHolder.pb_loading_image.setVisibility(View.GONE);
+                        viewHolder.tv_loading_image.setVisibility(View.GONE);
+                        viewHolder.iv_photo.setVisibility(View.VISIBLE);
+                    }
+
+                    @Override
+                    public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+                        viewHolder.pb_loading_image.setVisibility(View.GONE);
+                        viewHolder.tv_loading_image.setVisibility(View.GONE);
+                        viewHolder.iv_photo.setVisibility(View.VISIBLE);
+                    }
+                }, new ImageLoadingProgressListener() {
+                    @Override
+                    public void onProgressUpdate(String imageUri, View view, int current, int total) {
+                        SystemClock.sleep(2000);
+                        viewHolder.tv_loading_image.setText(Math.round(100.0f * current / total) + "%");
+                    }
+                });

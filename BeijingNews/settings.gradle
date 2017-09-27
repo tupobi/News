@@ -1,3 +1,7 @@
-include ':app', ':SlidingMenu_library'
+include ':app', ':SlidingMenu_library', ':refreshlistview_library', ':JPushExample(725492)', ':ImageLoader-library', ':ImageLoader-sample', ':PhotoView_sample', ':photoview_library'
 include ':ViewPagerIndicator_library'
 include ':ViewPagerIndicator_sample'
+include ':PullToRefresh_library'
+include ':pullToRefreshListFragment'
+include ':pullToRefreshViewPager'
+include ':PullToRefresh_sample'

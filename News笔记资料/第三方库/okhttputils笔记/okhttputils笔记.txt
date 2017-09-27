@@ -1,0 +1,25 @@
+1、传两个字符串参数，并得到返回response：
+        OkHttpUtils.post()
+                .url(url)
+                .addParams("id", inputId)
+                .addParams("pwd", inputPwd)
+                .build()
+                .execute(new StringCallback() {
+                    @Override
+                    public void onError(Call call, Exception e, int id) {
+                        LogUtil.e("联网请求失败：" + e.getMessage());
+                        Toast.makeText(AtyLogin.this, "请求失败！", Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onResponse(String response, int id) {
+                        if ("true".equals(response)) {
+                            Toast.makeText(AtyLogin.this, "登录成功", Toast.LENGTH_SHORT).show();
+                            MainActivity.actionStart(AtyLogin.this);
+                        } else if ("false".equals(response)) {
+                            Toast.makeText(AtyLogin.this, "账号或密码错误!", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(AtyLogin.this, "请求失败！", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });

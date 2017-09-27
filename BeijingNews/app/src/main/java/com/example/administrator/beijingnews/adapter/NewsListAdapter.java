@@ -1,6 +1,7 @@
 package com.example.administrator.beijingnews.adapter;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,7 +11,9 @@ import android.widget.TextView;
 
 import com.example.administrator.beijingnews.R;
 import com.example.administrator.beijingnews.domain.TabDetailPagerBean;
+import com.example.administrator.beijingnews.menudetailpager.tabdetailpager.TabDetailPager;
 import com.example.administrator.beijingnews.utils.Constants;
+import com.example.administrator.beijingnews.utils.SpUtils;
 
 import org.xutils.common.util.DensityUtil;
 import org.xutils.image.ImageOptions;
@@ -81,6 +84,12 @@ public class NewsListAdapter extends BaseAdapter {
 
         viewHolder.tv_news_detail_summary.setText(itemNewsData.getTitle());
         viewHolder.tv_news_date.setText(itemNewsData.getPubdate());
+        String idArray = SpUtils.getInstance().getString(TabDetailPager.READ_ARRAY_ID, "");
+        if (idArray.contains(itemNewsData.getId() + "")) {
+            viewHolder.tv_news_detail_summary.setTextColor(Color.GRAY);
+        } else {
+            viewHolder.tv_news_detail_summary.setTextColor(Color.BLACK);
+        }
         return view;
     }
 

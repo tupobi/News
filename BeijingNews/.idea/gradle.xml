@@ -8,10 +8,20 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/ImageLoader-library" />
+            <option value="$PROJECT_DIR$/ImageLoader-sample" />
+            <option value="$PROJECT_DIR$/JPushExample(725492)" />
+            <option value="$PROJECT_DIR$/PhotoView_sample" />
+            <option value="$PROJECT_DIR$/PullToRefresh_library" />
+            <option value="$PROJECT_DIR$/PullToRefresh_sample" />
             <option value="$PROJECT_DIR$/SlidingMenu_library" />
             <option value="$PROJECT_DIR$/ViewPagerIndicator_library" />
             <option value="$PROJECT_DIR$/ViewPagerIndicator_sample" />
             <option value="$PROJECT_DIR$/app" />
+            <option value="$PROJECT_DIR$/photoview_library" />
+            <option value="$PROJECT_DIR$/pullToRefreshListFragment" />
+            <option value="$PROJECT_DIR$/pullToRefreshViewPager" />
+            <option value="$PROJECT_DIR$/refreshlistview_library" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />
